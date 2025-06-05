@@ -44,25 +44,20 @@ const generateStars = (): Star[] => {
   }));
 };
 
-export default function Home() {
+const GamePage = () => {
   const [stars, setStars] = useState<Star[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameWon, setGameWon] = useState(false);
-
-  // Music control states
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedSongIndex, setSelectedSongIndex] = useState<number | null>(null);
   const audioRefs = useRef<(HTMLAudioElement | null)[]>([] as (HTMLAudioElement | null)[]);
 
   useEffect(() => {
-  setStars(generateStars());
+    setStars(generateStars());
+    const idx = Math.floor(Math.random() * 2);
+    setSelectedSongIndex(idx);
+  }, []);
 
-  const idx = Math.floor(Math.random() * 2); // Pick a random song every time
-  setSelectedSongIndex(idx);
-}, []);
-
-
-  // Play the selected song when game starts and not already playing
   useEffect(() => {
     if (gameStarted && selectedSongIndex !== null && !isPlaying) {
       const audio = audioRefs.current[selectedSongIndex];
@@ -73,7 +68,6 @@ export default function Home() {
     }
   }, [gameStarted, selectedSongIndex, isPlaying]);
 
-  // Stop music handler
   const stopMusic = () => {
     audioRefs.current.forEach((audio) => {
       if (audio) {
@@ -84,7 +78,6 @@ export default function Home() {
     setIsPlaying(false);
   };
 
-  // Only collectible stars count for "left"
   const collectibleStarsLeft = stars.filter(
     (s) => s.isCollectible && !s.isSpecial && !s.found
   ).length;
@@ -95,14 +88,12 @@ export default function Home() {
     isCollectible: boolean
   ) => {
     if (!isCollectible) return;
-
     if (isSpecial) {
       if (collectibleStarsLeft === 0) {
         setGameWon(true);
       }
       return;
     }
-
     setStars((prev) =>
       prev.map((star) => (star.id === id ? { ...star, found: true } : star))
     );
@@ -125,7 +116,6 @@ export default function Home() {
         textAlign: 'center',
       }}
     >
-      {/* Moon */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, y: [0, -10, 0] }}
@@ -180,8 +170,7 @@ export default function Home() {
               delay: 0.6,
             }}
             style={{
-              background:
-                'linear-gradient(135deg, #7b39f5 0%, #a865ff 100%)',
+              background: 'linear-gradient(135deg, #7b39f5 0%, #a865ff 100%)',
               border: 'none',
               padding: '1rem 2rem',
               borderRadius: '50px',
@@ -207,8 +196,7 @@ export default function Home() {
             height: '60vh',
             border: '2px solid #a865ff',
             borderRadius: '15px',
-            background:
-              'radial-gradient(circle at center, #1e0e3f 40%, transparent 100%)',
+            background: 'radial-gradient(circle at center, #1e0e3f 40%, transparent 100%)',
             overflow: 'hidden',
             zIndex: 10,
             userSelect: 'none',
@@ -221,18 +209,10 @@ export default function Home() {
           {stars.map(({ id, size, isSpecial, x, y, twinkleDelay, found, isCollectible }) => {
             if (found) return null;
 
-            const floatAnimation = {
-              y: ['0%', '10%', '0%'],
-              opacity: [0.6, 1, 0.6],
-            };
-
+            const floatAnimation = { y: ['0%', '10%', '0%'], opacity: [0.6, 1, 0.6] };
             const specialStarAnimation =
               isSpecial && collectibleStarsLeft === 0
-                ? {
-                    opacity: [1, 0.3, 1],
-                    scale: [1, 1.2, 1],
-                    y: ['0%', '-5%', '0%'],
-                  }
+                ? { opacity: [1, 0.3, 1], scale: [1, 1.2, 1], y: ['0%', '-5%', '0%'] }
                 : floatAnimation;
 
             return (
@@ -281,10 +261,7 @@ export default function Home() {
                 {isCollectible && !isSpecial && (
                   <motion.div
                     initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: [0, 1, 0],
-                      scale: [0.5, 1, 0.5],
-                    }}
+                    animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
                     transition={{
                       duration: 1.8,
                       repeat: Infinity,
@@ -345,8 +322,7 @@ It only teaches the heart to grow in softer ways.`}
             whileTap={{ scale: 0.95 }}
             style={{
               marginTop: '1.5rem',
-              background:
-                'linear-gradient(135deg, #7b39f5 0%, #a865ff 100%)',
+              background: 'linear-gradient(135deg, #7b39f5 0%, #a865ff 100%)',
               border: 'none',
               padding: '0.8rem 1.8rem',
               borderRadius: '50px',
@@ -367,7 +343,6 @@ It only teaches the heart to grow in softer ways.`}
         </motion.div>
       )}
 
-      {/* Stop music button on bottom right */}
       {isPlaying && (
         <button
           onClick={stopMusic}
@@ -378,8 +353,7 @@ It only teaches the heart to grow in softer ways.`}
             padding: '0.5rem 1rem',
             borderRadius: '30px',
             border: 'none',
-            background:
-              'linear-gradient(135deg, #7b39f5 0%, #a865ff 100%)',
+            background: 'linear-gradient(135deg, #7b39f5 0%, #a865ff 100%)',
             color: 'white',
             fontWeight: 'bold',
             cursor: 'pointer',
@@ -392,18 +366,17 @@ It only teaches the heart to grow in softer ways.`}
         </button>
       )}
 
-      {/* Audio elements */}
       <audio
-        ref={(el: HTMLAudioElement | null) => {
-          (audioRefs as MutableRefObject<(HTMLAudioElement | null)[]>).current[0] = el;
+        ref={(el) => {
+          audioRefs.current[0] = el;
         }}
         src="/music/song1.mp3"
         loop
         preload="auto"
       />
       <audio
-        ref={(el: HTMLAudioElement | null) => {
-          (audioRefs as MutableRefObject<(HTMLAudioElement | null)[]>).current[1] = el;
+        ref={(el) => {
+          audioRefs.current[1] = el;
         }}
         src="/music/song2.mp3"
         loop
@@ -411,4 +384,6 @@ It only teaches the heart to grow in softer ways.`}
       />
     </main>
   );
-}
+};
+
+export default GamePage;
